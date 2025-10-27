@@ -1,0 +1,133 @@
+#include <stdio.h> 
+#include <string.h> 
+#include <stdlib.h> 
+#define size 5 
+
+int front=-1; 
+int rear=-1; 
+char arr[size][50]; 
+
+void insert(char value[]) 
+{ 
+  if(rear==size-1) 
+  { 
+    printf("Queue is already fulled!!"); 
+  } 
+  else 
+  { 
+    if(rear==-1 && front==-1) 
+    { 
+      rear=0; 
+      front=0; 
+    } 
+    else 
+    { 
+     rear++; 
+    } 
+  } 
+ strcpy(arr[rear], value); 
+} 
+
+void delete() 
+{ 
+  if(front==-1 && rear==-1) 
+  { 
+    printf("Queue underflow!!"); 
+  } 
+  else 
+  { 
+    if(front==rear) 
+    { 
+      front=-1; 
+      rear=-1; 
+    } 
+    else if(rear==size-1 && front!=0) 
+    { 
+      front++; 
+    } 
+    else 
+    { 
+      front++; 
+    } 
+  } 
+} 
+
+void display() 
+{ 
+   if(front==-1 && rear==-1) 
+   { 
+     printf("Queue is empty!!"); 
+   } 
+   else 
+   { 
+     for(int i=front;i<=rear;i++) 
+     { 
+       printf("%s\n", arr[i]); 
+     } 
+   } 
+} 
+
+void cancel(char key[]) 
+{ 
+    if (front == -1)  
+    { 
+        printf("Queue is empty!!\n"); 
+    }  
+    else 
+    { 
+        int found = 0; 
+        for (int i = front; i <= rear; i++) 
+        { 
+            if (strcmp(arr[i], key) == 0)  
+            { 
+                found = 1; 
+                for (int j = i; j < rear; j++)  
+                { 
+                    strcpy(arr[j], arr[j+1]); 
+                } 
+                rear--; 
+                break; 
+            } 
+        } 
+        if (!found) 
+        { 
+            printf("Element not found in queue!!\n"); 
+        } 
+    } 
+} 
+
+int main() 
+{ 
+int choice; 
+char val[50], key[50]; 
+while(1) 
+ { 
+  printf("\n1.INSERT \n2.DELETE \n3.DISPLAY \n4.CANCEL \n5.EXIT"); 
+  printf("\n Enter your choice:"); 
+  scanf("%d",&choice); 
+  switch(choice) 
+  { 
+    case 1: 
+       printf("Enter event in queue:"); 
+       scanf(" %s",&val); 
+       insert(val); 
+       break; 
+     case 2: 
+       delete(); 
+       break; 
+     case 3: 
+        display(); 
+        break; 
+     case 4: 
+        printf("Enter event to delete:"); 
+        scanf(" %s",&key); 
+        cancel(key); 
+        break; 
+     case 5: 
+        exit(0); 
+     default: 
+        printf("Invalid choice"); 
+  } 
+ } 
+ return 0; 
+}
