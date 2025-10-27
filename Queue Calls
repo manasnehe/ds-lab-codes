@@ -1,0 +1,132 @@
+#include <iostream>
+using namespace std;
+
+// Define maximum number of calls that can be in the queue
+#define SIZE 10
+
+// Structure to store call details
+struct Call {
+    int customerID;
+    int callTime;
+};
+
+// Create queue class
+class CallQueue {
+    Call queue[SIZE];   // Array to store calls
+    int front, rear;    // Indices to track front and rear positions
+
+public:
+    // Constructor to initialize queue
+    CallQueue() {
+        front = -1;
+        rear = -1;
+    }
+
+    // Function to check if queue is empty
+    bool isQueueEmpty() {
+        if (front == -1 || front > rear)
+            return true;
+        else
+            return false;
+    }
+
+    // Function to check if queue is full
+    bool isQueueFull() {
+        if (rear == SIZE - 1)
+            return true;
+        else
+            return false;
+    }
+
+    // Function to add call to queue
+    void addCall(int customerID, int callTime) {
+        if (isQueueFull()) {
+            cout << "\nQueue is Full! Cannot add more calls.\n";
+            return;
+        }
+
+        if (front == -1)   // First call being added
+            front = 0;
+
+        rear++;  // Move rear forward
+        queue[rear].customerID = customerID;
+        queue[rear].callTime = callTime;
+
+        cout << "\nCall added successfully (Customer ID: " << customerID << ", Time: " << callTime << " mins)\n";
+    }
+
+    // Function to answer (remove) a call
+    void answerCall() {
+        if (isQueueEmpty()) {
+            cout << "\nNo calls to answer! Queue is empty.\n";
+            return;
+        }
+
+        cout << "\nAnswering Call -> Customer ID: " << queue[front].customerID
+             << ", Call Time: " << queue[front].callTime << " mins\n";
+        front++;  // Move front ahead to remove the first call
+    }
+
+    // Function to view all calls in queue
+    void viewQueue() {
+        if (isQueueEmpty()) {
+            cout << "\nQueue is empty. No pending calls.\n";
+            return;
+        }
+
+        cout << "\nPending Calls in Queue:\n";
+        for (int i = front; i <= rear; i++) {
+            cout << "Customer ID: " << queue[i].customerID
+                 << ", Call Time: " << queue[i].callTime << " mins\n";
+        }
+    }
+};
+
+// Main function
+int main() {
+    CallQueue cq;
+    int choice, id, time;
+
+    while (true) {
+        cout << "\n--- Call Center Queue System ---\n";
+        cout << "1. Add Call\n";
+        cout << "2. Answer Call\n";
+        cout << "3. View Queue\n";
+        cout << "4. Check if Queue is Empty\n";
+        cout << "5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter Customer ID: ";
+                cin >> id;
+                cout << "Enter Call Time (in mins): ";
+                cin >> time;
+                cq.addCall(id, time);
+                break;
+
+            case 2:
+                cq.answerCall();
+                break;
+
+            case 3:
+                cq.viewQueue();
+                break;
+
+            case 4:
+                if (cq.isQueueEmpty())
+                    cout << "\nQueue is empty.\n";
+                else
+                    cout << "\nQueue is NOT empty.\n";
+                break;
+
+            case 5:
+                cout << "\nExiting program.\n";
+                return 0;
+
+            default:
+                cout << "\nInvalid choice! Try again.\n";
+        }
+    }
+}
