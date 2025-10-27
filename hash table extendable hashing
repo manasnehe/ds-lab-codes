@@ -1,0 +1,190 @@
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+#define BUCKET_SIZE 2   // Maximum number of keys per bucket
+
+// Bucket structure
+struct Bucket {
+    int keys[BUCKET_SIZE];
+    int values[BUCKET_SIZE];
+    int keyCount;
+    int localDepth;
+
+    Bucket(int depth) {
+        keyCount = 0;
+        localDepth = depth;
+    }
+};
+
+// Hash Table structure
+struct ExtendibleHashTable {
+    Bucket** directory;
+    int globalDepth;
+    int dirSize;
+
+    ExtendibleHashTable() {
+        globalDepth = 1;
+        dirSize = 1 << globalDepth;
+        directory = new Bucket*[dirSize];
+        for (int i = 0; i < dirSize; i++)
+            directory[i] = new Bucket(globalDepth);
+    }
+
+    // Hash Function
+    int hashFunction(int key) {
+        return key & ((1 << globalDepth) - 1);
+    }
+
+    // Double the directory when needed
+    void doubleDirectory() {
+        int oldSize = dirSize;
+        dirSize = dirSize * 2;
+        Bucket** newDir = new Bucket*[dirSize];
+        for (int i = 0; i < oldSize; i++) {
+            newDir[i] = directory[i];
+            newDir[i + oldSize] = directory[i];
+        }
+        directory = newDir;
+        globalDepth++;
+    }
+
+    // Split a bucket when overflow happens
+    void splitBucket(int index) {
+        Bucket* oldBucket = directory[index];
+        int localDepth = oldBucket->localDepth;
+        int newLocalDepth = localDepth + 1;
+
+        // Create new bucket
+        Bucket* newBucket = new Bucket(newLocalDepth);
+        oldBucket->localDepth = newLocalDepth;
+
+        // Check if we need to expand directory
+        if (newLocalDepth > globalDepth)
+            doubleDirectory();
+
+        // Redistribute directory pointers
+        int pattern = 1 << (newLocalDepth - 1);
+        for (int i = 0; i < dirSize; i++) {
+            if (directory[i] == oldBucket && ((i & pattern) != 0))
+                directory[i] = newBucket;
+        }
+
+        // Reinsert old keys
+        int tempKeys[BUCKET_SIZE + 1];
+        int tempValues[BUCKET_SIZE + 1];
+        int tempCount = oldBucket->keyCount;
+        for (int i = 0; i < tempCount; i++) {
+            tempKeys[i] = oldBucket->keys[i];
+            tempValues[i] = oldBucket->values[i];
+        }
+        oldBucket->keyCount = 0;
+
+        for (int i = 0; i < tempCount; i++)
+            insert(tempKeys[i], tempValues[i]);
+    }
+
+    // Insert key-value pair
+    void insert(int key, int value) {
+        int index = hashFunction(key);
+        Bucket* bucket = directory[index];
+
+        // Check for duplicate key
+        for (int i = 0; i < bucket->keyCount; i++) {
+            if (bucket->keys[i] == key) {
+                cout << "Key already exists. Updating value.\n";
+                bucket->values[i] = value;
+                return;
+            }
+        }
+
+        if (bucket->keyCount < BUCKET_SIZE) {
+            bucket->keys[bucket->keyCount] = key;
+            bucket->values[bucket->keyCount] = value;
+            bucket->keyCount++;
+        } else {
+            splitBucket(index);
+            insert(key, value);  // Retry insertion
+        }
+    }
+
+    // Search for a key
+    void search(int key) {
+        int index = hashFunction(key);
+        Bucket* bucket = directory[index];
+        for (int i = 0; i < bucket->keyCount; i++) {
+            if (bucket->keys[i] == key) {
+                cout << "Key " << key << " found with value " << bucket->values[i] << endl;
+                return;
+            }
+        }
+        cout << "Key " << key << " not found.\n";
+    }
+
+    // Delete a key
+    void deleteKey(int key) {
+        int index = hashFunction(key);
+        Bucket* bucket = directory[index];
+        for (int i = 0; i < bucket->keyCount; i++) {
+            if (bucket->keys[i] == key) {
+                for (int j = i; j < bucket->keyCount - 1; j++) {
+                    bucket->keys[j] = bucket->keys[j + 1];
+                    bucket->values[j] = bucket->values[j + 1];
+                }
+                bucket->keyCount--;
+                cout << "Key " << key << " deleted.\n";
+                return;
+            }
+        }
+        cout << "Key " << key << " not found.\n";
+    }
+
+    // Display the hash table
+    void display() {
+        cout << "\n--- Hash Table ---\n";
+        for (int i = 0; i < dirSize; i++) {
+            cout << "Dir[" << i << "] (Local Depth: " << directory[i]->localDepth << ") -> ";
+            for (int j = 0; j < directory[i]->keyCount; j++) {
+                cout << "(" << directory[i]->keys[j] << "," << directory[i]->values[j] << ") ";
+            }
+            cout << endl;
+        }
+        cout << "Global Depth: " << globalDepth << endl;
+    }
+};
+
+// Main function
+int main() {
+    ExtendibleHashTable ht;
+    int choice, key, value;
+
+    while (1) {
+        cout << "\n1. Insert\n2. Search\n3. Delete\n4. Display\n5. Exit\nEnter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter key and value: ";
+                cin >> key >> value;
+                ht.insert(key, value);
+                break;
+            case 2:
+                cout << "Enter key to search: ";
+                cin >> key;
+                ht.search(key);
+                break;
+            case 3:
+                cout << "Enter key to delete: ";
+                cin >> key;
+                ht.deleteKey(key);
+                break;
+            case 4:
+                ht.display();
+                break;
+            case 5:
+                return 0;
+            default:
+                cout << "Invalid choice.\n";
+        }
+    }
+}
