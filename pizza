@@ -1,0 +1,63 @@
+/*A pizza shop receives multiple orders from several locations. Assume that one pizza boy is
+tasked with delivering pizzas in nearby locations, which is represented using a graph. The
+time required to reach from one location to another represents node connections. Solve the
+problem of delivering a pizza to all customers in the minimum time. Use appropriate data
+structures*/
+
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int n;
+
+int  input(int arr [][100],int n ){
+	
+	for (int i = 0; i < n; i++){
+		for(int j = 0; j < n; j++){
+			arr[i][j] = 999;
+		}
+	}
+	
+	
+	int edg;
+	cout<<"Enter number of edges : ";
+	cin>>edg;
+	
+	cout <<"Enter Node and time in format "<<endl<<endl;
+	cout<<" Node1   Node2   time "<<endl;
+	for (int i = 0 ; i < edg; i++){
+		cout<<" edge "<<i<<" :"; 
+		int a;
+		cin>>a;
+		int b;
+		cin>>b;
+		int c;
+		cin>>c;
+		arr[a-1][b-1] = c;
+		arr[b-1][a-1] = c;
+		cout<<endl;
+	}
+	return 0;
+}
+
+int  display(int arr[][100],int n ){
+	
+	for (int i = 0; i < n; i++){
+		for(int j = 0; j < n; j++){
+			cout<<arr[i][j]<<"      ";
+		}
+		cout<<endl;
+	}
+	return 0;
+}
+
+int main(){
+	cout<<"Enter number of locations : ";
+	cin>>n;
+	int arr[100][100];
+
+	input(arr,n);
+	display(arr,n);
+
+	return 0;
+}
