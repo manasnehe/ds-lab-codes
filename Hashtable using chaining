@@ -1,0 +1,136 @@
+#include <iostream>
+using namespace std;
+
+#define SIZE 10
+
+// Node structure for chaining
+struct Node {
+    int key;
+    int value;
+    Node* next;
+};
+
+// Hash Table array
+Node* hashTable[SIZE];
+
+// Function to initialize hash table
+void initialize() {
+    for (int i = 0; i < SIZE; i++)
+        hashTable[i] = NULL;
+}
+
+// Hash function using division method
+int hashFunction(int key) {
+    return key % SIZE;
+}
+
+// Insert key-value pair
+void insert(int key, int value) {
+    int index = hashFunction(key);
+    Node* newNode = new Node;
+    newNode->key = key;
+    newNode->value = value;
+    newNode->next = NULL;
+
+    if (hashTable[index] == NULL) {
+        hashTable[index] = newNode;
+    } else {
+        Node* temp = hashTable[index];
+        while (temp->next != NULL)
+            temp = temp->next;
+        temp->next = newNode;
+    }
+    cout << "Inserted (" << key << ", " << value << ") at index " << index << endl;
+}
+
+// Search for a key
+void search(int key) {
+    int index = hashFunction(key);
+    Node* temp = hashTable[index];
+    while (temp != NULL) {
+        if (temp->key == key) {
+            cout << "Key " << key << " found with value: " << temp->value << endl;
+            return;
+        }
+        temp = temp->next;
+    }
+    cout << "Key " << key << " not found" << endl;
+}
+
+// Delete a key-value pair
+void deleteKey(int key) {
+    int index = hashFunction(key);
+    Node* temp = hashTable[index];
+    Node* prev = NULL;
+
+    while (temp != NULL && temp->key != key) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (temp == NULL) {
+        cout << "Key " << key << " not found" << endl;
+        return;
+    }
+
+    if (prev == NULL)
+        hashTable[index] = temp->next;
+    else
+        prev->next = temp->next;
+
+    delete temp;
+    cout << "Key " << key << " deleted successfully" << endl;
+}
+
+// Display hash table
+void display() {
+    for (int i = 0; i < SIZE; i++) {
+        cout << "Index " << i << ": ";
+        Node* temp = hashTable[i];
+        while (temp != NULL) {
+            cout << "(" << temp->key << "," << temp->value << ") -> ";
+            temp = temp->next;
+        }
+        cout << "NULL" << endl;
+    }
+}
+
+int main() {
+    int choice, key, value;
+    initialize();
+
+    while (1) {
+        cout << "\n1. Insert\n2. Search\n3. Delete\n4. Display\n5. Exit\nEnter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter key and value: ";
+                cin >> key >> value;
+                insert(key, value);
+                break;
+
+            case 2:
+                cout << "Enter key to search: ";
+                cin >> key;
+                search(key);
+                break;
+
+            case 3:
+                cout << "Enter key to delete: ";
+                cin >> key;
+                deleteKey(key);
+                break;
+
+            case 4:
+                display();
+                break;
+
+            case 5:
+                return 0;
+
+            default:
+                cout << "Invalid choice!" << endl;
+        }
+    }
+}
