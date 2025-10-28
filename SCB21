@@ -1,0 +1,45 @@
+size=int(input("enter size of hash table:"))
+table=[-1]*size #initialize
+
+def insert(key):
+	index = key % size
+	if table[index]==-1:
+		table[index]=key
+	else:
+		while True:
+			index=(index+1) % size
+			if table[index]==-1:
+				table[index]=key
+				break;	
+
+def display():
+	print("Hash Table")
+	for i in range(size):
+		print(table[i])
+		
+def search(key):
+	index = key % size
+	if table[index]==key:
+		print("key found at:",index)
+		return index
+	else:
+		while True:
+			index=(index+1) % size
+			if table[index]==key:
+				print("key found at:",index)
+				return index
+				break;	
+					
+def delete(key):
+	a=search(key)
+	table[a]=-1
+	if table[a]==-1:
+		print("key not found")
+	
+insert(23)
+insert(13)
+insert(22)
+display()
+x=search(13)
+delete(23)
+display()
